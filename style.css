@@ -1,0 +1,141 @@
+canvas{
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+body{
+    position: fixed;
+    overflow: hidden;
+}
+
+.onTop {
+	position:fixed;
+	top: 10px;
+	width: 100%;
+	text-align: center;
+	z-index: 100;
+	display:block;
+
+}
+
+.onTopLeft {
+	position:fixed;
+	top: 10px;
+	width: 100%;
+	text-align: left;
+	z-index: 100;
+	display:block;
+}
+
+.spotify{
+	position: fixed;
+	z-index: 100;
+	height: max-content;
+	display:block;
+}
+
+.deathDiv {
+    color: red;
+    position:fixed;
+	top: 10%;
+	width: 100%;
+	text-align: center;
+	z-index: 100;
+    -webkit-text-stroke: 2px black;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.center {
+	position: fixed;
+	top: 30%;
+	width: 100%;
+	height: max-content;
+	z-index: 100;
+  }
+
+.spaceBar{
+	position: absolute;
+	left: 50%;
+	height: 200px;
+	object-fit: cover;
+  }
+
+.spaceBar:hover {
+	animation: shake 0.5s;
+	animation-iteration-count: infinite;
+	height: 200px;
+	object-fit: cover;
+  }
+  
+  @keyframes shake {
+	0% { transform: translate(1px, 1px) rotate(0deg); }
+	10% { transform: translate(-1px, -2px) rotate(-1deg); }
+	20% { transform: translate(-3px, 0px) rotate(1deg); }
+	30% { transform: translate(3px, 2px) rotate(0deg); }
+	40% { transform: translate(1px, -1px) rotate(1deg); }
+	50% { transform: translate(-1px, 2px) rotate(-1deg); }
+	60% { transform: translate(-3px, 1px) rotate(0deg); }
+	70% { transform: translate(3px, 1px) rotate(-1deg); }
+	80% { transform: translate(-1px, -1px) rotate(1deg); }
+	90% { transform: translate(1px, 2px) rotate(0deg); }
+	100% { transform: translate(1px, -2px) rotate(-1deg); }
+  }
+
+.btn {
+	text-align:center;
+	cursor: pointer;
+	padding: 40px 90px;
+	margin: 25px 30px;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	font-weight: 700;
+	outline: none;
+	position: relative;
+	background-color: rgba(38, 38, 38, 0.43);
+	border: solid 1px transparent;
+	border-radius:10px;
+	-webkit-font-smoothing: antialiased;
+	font-size: 40px;
+}
+
+.nav {
+	text-align: center;
+	position:relative;
+	width:500px;
+	margin:auto;
+	overflow:hidden;
+}
+
+ul{
+	list-style-type: none;
+}
+a{color: white}
+a:link { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:hover { text-decoration: none; }
+a:active { text-decoration: none; }
+
+.form{
+	display: inline-block;
+	background: rgba(255, 255, 255, 0.51);
+	border-radius: 10%;
+	font-size: 32px;
+}
+
+.form-center{
+	position:fixed;
+	top: 30%;
+	width: 100%;
+	text-align: center;
+	z-index: 100;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+input[type='radio'] {
+	transform: scale(1.5);
+}
