@@ -1,12 +1,15 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.136.0'
 
+document.addEventListener("keydown", e=>{
+  if (e.key === "Escape") history.back();
+});
+
 const scene = new THREE.Scene();
 
 let playerCar;
 
-if (localStorage.getItem("Vehicle") == null) playerCar = Car();
-else if (localStorage.getItem("Vehicle") === "Car") playerCar = Car();
-else if (localStorage.getItem("Vehicle") === "Truck") playerCar = Truck();
+if (localStorage.getItem("Vehicle") === "Truck") playerCar = Truck();
+else playerCar = Car();
 
 scene.add(playerCar);
 
@@ -39,16 +42,23 @@ let decelerate = false;
 let ready;
 let playerAngleMoved;
 let score;
-const speed = 0.0017;
+let highScore = localStorage.getItem("HighScore");
+if (highScore == null) highScore = 0;
+let playerSpeed = 0.0017;
+let speed = 0.0017;
 const playerAngleInitial = Math.PI;
 const scoreElement = document.getElementById("score");
 let otherVehicles = [];
 let lastTimestamp;
-let stage = 0;
+let portal;
 const trackRadius = 225;
 const trackWidth = 45;
 const innerTrackRadius = trackRadius - trackWidth;
 const outerTrackRadius = trackRadius + trackWidth;
+let powerUp = false;
+let freezeRound = null;
+let invincibility = null;
+let destroying = false;
 
 const arcAngle1 = (1 / 3) * Math.PI; // 60 degrees
 
@@ -63,6 +73,18 @@ const arcCenterX =
 const arcAngle3 = Math.acos(arcCenterX / innerTrackRadius);
 
 const arcAngle4 = Math.acos(arcCenterX / outerTrackRadius);
+
+const texture = new THREE.TextureLoader().load("assets/walter.jpg");
+
+const protectionBarrier = new THREE.Mesh(
+    new THREE.SphereGeometry(40, 40, 40),
+    new THREE.MeshLambertMaterial({ color: 0xFFFFFF, map: texture, transparent: true, opacity: 0.5 })
+);
+
+protectionBarrier.rotation.x = 45;
+protectionBarrier.rotation.z = -30;
+
+protectionBarrier.position.z = 20;
 
 renderMap(cameraWidth, cameraHeight * 2);
 
@@ -89,7 +111,7 @@ function Car() {
 
   const main = new THREE.Mesh(
     new THREE.BoxBufferGeometry(60, 30, 15),
-    new THREE.MeshLambertMaterial({ color: random(vehicleColors) })
+    new THREE.MeshLambertMaterial({ color: random(vehicleColors)})
   );
   main.position.z = 12;
   car.add(main);
@@ -251,9 +273,15 @@ function getOuterField(mapWidth, mapHeight) {
 
 function reset() {
   playerAngleMoved = 0;
+  resetFreeze();
+  resetBarrier();
   movePlayerCar(0);
+  if (highScore < score){
+    highScore = score;
+    localStorage.setItem("HighScore", highScore);
+  }
   score = 0;
-  scoreElement.innerHTML ="Score: " + score;
+  scoreElement.innerHTML ="Score: " + score + "<br> High Score: " + highScore;
   document.getElementById("dead").innerText="";
   lastTimestamp = undefined;
   otherVehicles.forEach((vehicle) => {
@@ -264,6 +292,7 @@ function reset() {
   ready = true;
   resize(renderer,camera);
   document.getElementById("dead").src ="";
+  addVehicle();
 }
 
 function resize(renderer, camera){
@@ -286,62 +315,46 @@ function startGame() {
   }
 }
 
+let accelerateKey = localStorage.getItem("Accelerate");
+if (accelerateKey == null) accelerateKey = "W";
+let decelerateKey = localStorage.getItem("Decelerate");
+if (decelerateKey == null) decelerateKey = "S";
+let resetKey = localStorage.getItem("Restart");
+if (resetKey == null) resetKey = "R";
+
 window.addEventListener("keydown", function (event) {
-  if (event.key === "ArrowUp") {
+  if (event.key === accelerateKey.toLowerCase()) {
     startGame();
     accelerate = true;
     return;
   }
-  if (event.key === "ArrowDown") {
+  if (event.key === decelerateKey.toLowerCase()) {
     decelerate = true;
     return;
   }
-  if (event.key === "r") {
+  if (event.key === resetKey.toLowerCase()) {
     reset();
   }
 });
 
 window.addEventListener("keyup", function (event) {
-  if (event.key === "ArrowUp") {
+  if (event.key === accelerateKey.toLowerCase()) {
     accelerate = false;
     return;
   }
-  if (event.key === "ArrowDown") {
+  if (event.key === decelerateKey.toLowerCase()) {
     decelerate = false;
   }
 });
 
-function toggleButton(){
-
-}
-
-function addButtonCube(){
-
-}
-
-function moveOnToNextStage(){
-
-  //WIP
-}
-
 
 function addPortal(){
-  const portal = new THREE.Mesh(
+  portal = new THREE.Mesh(
     new THREE.BoxBufferGeometry(12, 33, 12),
     new THREE.MeshLambertMaterial({ color: 0xff00ff })
   );
-  portal.position.set(-300,-200,5);
+  portal.position.set(-380,2,0);
   scene.add(portal);
-}
-
-function scoreEvents(){
-  switch (score) {
-    case 0:
-      break;
-
-    default:
-      break;
-  }
 }
 
 function movePlayerCar(timeDelta) {
@@ -353,13 +366,20 @@ function movePlayerCar(timeDelta) {
   playerCar.position.x = playerX;
   playerCar.position.y = playerY;
   playerCar.rotation.z = totalPlayerAngle - Math.PI / 2;
-
 }
 
 function getPlayerSpeed() {
-  if (accelerate) return speed * 2;
-  if (decelerate) return speed * 0.5;
-  return speed;
+  if (localStorage.getItem("Vehicle") === "Truck"){
+    
+    if (accelerate) return playerSpeed * 3;
+    if (decelerate) return playerSpeed * 0.125;
+    else return playerSpeed * 0.5;
+  }
+  else{
+    if (decelerate) return playerSpeed * 0.5;
+    if (accelerate) return playerSpeed * 2;
+  }
+  return playerSpeed;
 }
 
 function animation(timestamp) {
@@ -367,25 +387,76 @@ function animation(timestamp) {
     lastTimestamp = timestamp;
     return;
   }
+  document.getElementById("freeze").style.height = document.querySelectorAll("canvas")[0].style.height;
+  document.getElementById("freeze").style.width = document.querySelectorAll("canvas")[0].style.width;
   const timeDelta = timestamp - lastTimestamp;
   movePlayerCar(timeDelta);
   const laps = Math.floor(Math.abs(playerAngleMoved) / (Math.PI * 2));
   if (laps !== score) {
     score = laps;
-    scoreElement.innerText = "Score:"+ score;
+    if(laps % 5 === 0) addVehicle();
+    scoreElement.innerHTML = "Score: " + score + "<br> High Score: " + highScore;
+    if (powerUp) {
+      let i = Math.floor(Math.random());
+      switch (i) {
+        case 1:
+          speed = 0;
+          freezeRound = score;
+          document.getElementById("freeze").src = "assets/freeze.png";
+          break;
+        case 2:
+          if (otherVehicles.length === 0) break;
+          destroying = Math.floor(Math.random()*otherVehicles.length);
+          break;
+        case 0:
+          invincibility = -1;
+          playerCar.add(protectionBarrier);
+          break;
+      }
+      powerUp = false;
+      scene.remove(portal);
+    }
+
+    if (freezeRound !== null && freezeRound + 2 === score) resetFreeze();
+
+    if (!Math.floor(Math.random() * 2)) {
+      addPortal();
+      powerUp = true;
+    }
   }
 
-  if(otherVehicles.length<(laps+1)/5) addVehicle();
-
   moveOtherVehicles(timeDelta);
-
+  if (destroying !== false) destroyCar();
   hitDetection();
-
-  scoreEvents();
 
   renderer.clear();
   renderer.render(scene, camera);
   lastTimestamp=timestamp;
+}
+
+function resetBarrier(){
+  invincibility = null;
+  playerCar.remove(protectionBarrier);
+}
+
+function resetFreeze(){
+  speed = 0.0017;
+  freezeRound = null;
+  document.getElementById("freeze").src = null;
+}
+
+let count = 0;
+
+function destroyCar(){
+  count++;
+  console.log(otherVehicles[destroying].mesh.children);
+  if (count % 30 === 0) otherVehicles[destroying].mesh.children.splice(otherVehicles[destroying].mesh.children.length-1, 1);
+  if (otherVehicles[destroying].mesh.children.length === 0){
+    scene.remove(otherVehicles[destroying].mesh);
+    otherVehicles.splice(destroying, 1);
+    destroying = false;
+    count = 0;
+  }
 }
 
 function getDistance(coordinate1, coordinate2) {
@@ -406,7 +477,6 @@ function addVehicle(){
   scene.add(mesh);
 
   otherVehicles.push({ mesh, speed, clockwise, angle });
-  scene.add(otherVehicles);
 }
 
 function getVehicleSpeed() {
@@ -432,6 +502,9 @@ function moveOtherVehicles(timeDelta) {
     vehicle.mesh.rotation.z = rotation;
   });
 }
+
+let isHitting = false;
+let hittingCount = 0;
 
 function hitDetection() {
   const playerHitZone1 = getHitZonePosition(
@@ -471,12 +544,30 @@ function hitDetection() {
         -15
       );
 
+      let hit = false;
+
       // The player hits another vehicle
-      if (getDistance(playerHitZone1, vehicleHitZone1) < 40) return true;
-      if (getDistance(playerHitZone1, vehicleHitZone2) < 40) return true;
+      if (getDistance(playerHitZone1, vehicleHitZone2) < 40) hit = true;
 
       // Another vehicle hits the player
-      if (getDistance(playerHitZone2, vehicleHitZone1) < 40) return true;
+      if (getDistance(playerHitZone2, vehicleHitZone1) < 40) hit = true;
+
+      if (hit && (invincibility === -1 || invincibility === score)){
+        invincibility = score;
+        isHitting = true;
+        return false
+      } else if (hit) return true;
+
+      if (isHitting){
+        hittingCount++;
+        if (hittingCount === 40){
+          isHitting = false;
+          resetBarrier();
+          hittingCount = 0;
+        }
+      }
+
+      return false;
   });
 
   if (hit) {
@@ -608,3 +699,7 @@ function Truck() {
 
   return truck;
 }
+
+document.getElementById("onTopLeft1").innerHTML = accelerateKey + " to Accelerate";
+document.getElementById("onTopLeft2").innerHTML = decelerateKey + " to Decelerate";
+document.getElementById("onTopLeft3").innerHTML = resetKey + " to Restart";

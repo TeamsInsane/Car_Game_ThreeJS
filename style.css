@@ -28,6 +28,20 @@ body{
 	display:block;
 }
 
+#freeze{
+	top: 0;
+	left: 0;
+	position:fixed;
+	z-index: 100;
+	display:block;
+	width: 500px;
+}
+
+.imgbox{
+	display: grid;
+	height: 100%;
+}
+
 .spotify{
 	position: fixed;
 	z-index: 100;
@@ -111,17 +125,13 @@ body{
 
 ul{
 	list-style-type: none;
+	color: white
 }
-a{color: white}
-a:link { text-decoration: none; }
-a:visited { text-decoration: none; }
-a:hover { text-decoration: none; }
-a:active { text-decoration: none; }
 
 .form{
 	display: inline-block;
 	background: rgba(255, 255, 255, 0.51);
-	border-radius: 10%;
+	border-radius: 10px;
 	font-size: 32px;
 }
 
