@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="style.css">
+    <title>web</title>
+</head>
+<body>
+<div class="onTopLeft" style="top: 100px" id="onTopLeft1">R to Restart</div>
+<div class="onTopLeft" style="top: 120px"><strong>Player 1</strong></div>
+<div class="onTopLeft" style="top: 140px" id="onTopLeft2">W to Accelerate</div>
+<div class="onTopLeft" style="top: 160px" id="onTopLeft3">S to Decelerate</div>
+<div class="onTopLeft" style="top: 180px"><strong>Player 2</strong></div>
+<div class="onTopLeft" style="top: 200px" id="onTopLeft4">W to Accelerate</div>
+<div class="onTopLeft" style="top: 220px" id="onTopLeft5">S to Decelerate</div>
+<div class="deathDiv"><img id="dead"><br><p id="winText"></p></div>
+<div class="onTop"><h2 id="score" style="color: rgb(255,0,0)"></h2></div>
+<div class="onTopLeft">
+    <iframe style="border-radius:12px" frameborder="0" src="https://open.spotify.com/embed/track/15RSD04RKmM1fjrBONNtqK?utm_source=generator" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+</div>
+<script type="module" src="/multiplayer.js"></script>
+<div class="imgbox">
+    <img id="freeze" src="" onerror="this.style.opacity='0'" onload="this.style.opacity='1'">
+</div>
+</body>
+</html>
