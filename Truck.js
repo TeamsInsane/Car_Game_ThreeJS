@@ -30,7 +30,7 @@ function getTruckSideTexture() {
     return new THREE.CanvasTexture(canvas);
 }
 
-export function Truck() {
+export function Truck(col = 0) {
     const vehicleColors = [0xffffaa, 0xbf281d, 0xa000af, 0x282928];
 
     const truck = new THREE.Group();
@@ -87,6 +87,16 @@ export function Truck() {
     const frontWheel = Wheel();
     frontWheel.position.x = 38;
     truck.add(frontWheel);
+
+    if (col !== 0){
+        const block = new THREE.Mesh(
+            new THREE.BoxBufferGeometry(10, 10, 10),
+            new THREE.MeshLambertMaterial({ color: col })
+        );
+        block.position.z = 80;
+        block.position.x = -10;
+        truck.add(block);
+    }
 
     return truck;
 }

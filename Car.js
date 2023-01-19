@@ -1,6 +1,6 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.136.0'
 
-export function Car() {
+export function Car(col = 0) {
     const vehicleColors = [0xffffaa, 0xbf281d, 0xa000af, 0x282928];
     const car = new THREE.Group();
     const backWheel = Wheel();
@@ -25,6 +25,16 @@ export function Car() {
     cabin.position.x = -6;
     cabin.position.z = 25.5;
     car.add(cabin);
+
+    if (col !== 0){
+        const block = new THREE.Mesh(
+            new THREE.BoxBufferGeometry(10, 10, 10),
+            new THREE.MeshLambertMaterial({ color: col })
+        );
+        block.position.z = 50;
+        block.position.x = -8;
+        car.add(block);
+    }
 
     return car;
 }

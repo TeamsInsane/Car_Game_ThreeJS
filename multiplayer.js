@@ -70,11 +70,11 @@ protectionBarrier2.position.z = 20;
 let player1 = new Player(1, localStorage.getItem("Accelerate1"), localStorage.getItem("Decelerate1"), -380, protectionBarrier1);
 let player2 = new Player(2, localStorage.getItem("Accelerate2"), localStorage.getItem("Decelerate2"), -70, protectionBarrier2);
 
-if (localStorage.getItem("Vehicle1") === "Truck") player1.car = Truck();
-else player1.car = Car();
+if (localStorage.getItem("Vehicle1") === "Truck") player1.car = Truck(0xFF0000);
+else player1.car = Car(0xFF0000);
 
-if (localStorage.getItem("Vehicle2") === "Truck") player2.car = Truck();
-else player2.car = Car();
+if (localStorage.getItem("Vehicle2") === "Truck") player2.car = Truck(0x00FF00);
+else player2.car = Car(0x00FF00);
 
 scene.add(player1.car);
 scene.add(player2.car);

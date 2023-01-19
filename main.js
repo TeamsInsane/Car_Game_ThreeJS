@@ -4,7 +4,7 @@ import {Truck} from './Truck'
 import {renderMap} from './Map'
 
 document.addEventListener("keydown", e=>{
-  if (e.key === "Escape") history.back();
+    if (e.key === "Escape") history.back();
 });
 
 const scene = new THREE.Scene();
